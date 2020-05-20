@@ -1,14 +1,23 @@
+FROM maven:3.6-jdk-8 as builder
+
+COPY . .
+RUN mvn install
+
+
 FROM openliberty/open-liberty:javaee8-ubi-min
 
 ENV INSTALL_DIR /opt/ol/wlp/
-ENV CONFIG_DIR /opt/ol/wlp/usr/servers/defaultServer/
+ENV SERVER_DIR /opt/ol/wlp/usr/servers/defaultServer/
 
-ADD https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.16/mysql-connector-java-8.0.16.jar  ${INSTALL_DIR}lib/mysql-connector-java-8.0.16.jar
-#RUN chmod 644 ${INSTALL_DIR}lib/mysql-connector-java-8.0.16.jar
-COPY liberty-mysql/mysql-driver.xml ${CONFIG_DIR}configDropins/defaults/
+# Add MySQL-Java-Connector to container
+ADD https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.16/mysql-connector-java-8.0.16.jar ${INSTALL_DIR}lib/mysql-connector-java-8.0.16.jar
 
-COPY liberty/server.xml $CONFIG_DIR
-COPY liberty/jvm.options $CONFIG_DIR
+# Copy build artefacts
+COPY --from=builder target/health-api.war ${SERVER_DIR}apps
 
-COPY target/health-api.war /opt/ol/wlp/usr/servers/defaultServer/apps
+# Copy configs
+COPY liberty-mysql/mysql-driver.xml ${SERVER_DIR}configDropins/defaults/
+COPY liberty/server.xml $SERVER_DIR
+COPY liberty/jvm.options $SERVER_DIR
+
 EXPOSE 9080
