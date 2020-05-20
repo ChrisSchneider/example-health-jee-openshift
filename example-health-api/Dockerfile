@@ -10,7 +10,7 @@ ENV INSTALL_DIR /opt/ol/wlp/
 ENV SERVER_DIR /opt/ol/wlp/usr/servers/defaultServer/
 
 # Add MySQL-Java-Connector to container
-ADD https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.16/mysql-connector-java-8.0.16.jar ${INSTALL_DIR}lib/mysql-connector-java-8.0.16.jar
+RUN curl -O ${INSTALL_DIR}lib/mysql-connector-java-8.0.16.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.16/mysql-connector-java-8.0.16.jar
 
 # Copy build artefacts
 COPY --from=builder target/health-api.war ${SERVER_DIR}apps
